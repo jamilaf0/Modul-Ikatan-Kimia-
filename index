@@ -1,0 +1,2724 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ikatan Kimia - Pembelajaran Interaktif Lengkap</title>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <style>
+    :root {
+      --pink: #ff9ac9;
+      --blue: #a6e3ff;
+      --accent-blue: #4a90e2;
+      --accent-pink: #ff9cc0;
+      --text: #0b1724;
+      --muted: #475569;
+      --shadow: 0 12px 34px rgba(13,38,77,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Inter, system-ui, -apple-system, Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #fff7fb, #f0f9ff);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .main-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      z-index: 1000;
+      padding: 12px 0;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+    }
+
+    .identity-badge {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
+    .profile-btn {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-pink));
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Navigation */
+    .nav-menu {
+      position: fixed;
+      top: 70px;
+      left: 0;
+      right: 0;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      z-index: 999;
+      overflow-x: auto;
+    }
+
+    .nav-items {
+      display: flex;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      gap: 5px;
+    }
+
+    .nav-item {
+      padding: 12px 18px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      font-size: 0.9rem;
+    }
+
+    .nav-item:hover {
+      color: var(--accent-blue);
+      background: rgba(74, 144, 226, 0.05);
+    }
+
+    .nav-item.active {
+      color: var(--accent-blue);
+      border-bottom-color: var(--accent-blue);
+      background: rgba(74, 144, 226, 0.1);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-top: 130px;
+      padding: 20px;
+      min-height: calc(100vh - 130px);
+    }
+
+    .module {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+      animation: fadeIn 0.5s;
+    }
+
+    .module.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Panel */
+    .panel {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      margin: 20px 0;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+      color: var(--accent-blue);
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(74, 144, 226, 0.15);
+    }
+
+    .panel h3 {
+      color: var(--accent-pink);
+      margin: 18px 0 10px;
+    }
+
+    .panel p, .panel li {
+      color: var(--muted);
+      margin: 10px 0;
+    }
+
+    .panel ul { padding-left: 24px; }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.3s;
+      margin: 5px;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      background: linear-gradient(90deg, var(--accent-blue), #6ab7ff);
+      color: white;
+      box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(90deg, var(--accent-pink), #ff6b9d);
+      color: white;
+      box-shadow: 0 4px 15px rgba(255, 156, 192, 0.3);
+    }
+
+    /* 3D Viewer */
+    .viewer-3d {
+      width: 100%;
+      height: 400px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #f0f8ff, #fff0fa);
+      border: 2px solid #e0e0e0;
+      position: relative;
+      margin: 20px 0;
+    }
+
+    .viewer-3d canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Grid */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .main-content { margin-top: 140px; }
+      .nav-item { padding: 10px 12px; font-size: 0.8rem; }
+    }
+
+    /* Card */
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s;
+    }
+
+    .card:hover { transform: translateY(-5px); }
+
+    .card h3 {
+      color: var(--accent-blue);
+      margin-bottom: 10px;
+    }
+
+    /* Info Box */
+    .info-box {
+      background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(255, 156, 192, 0.1));
+      border-left: 4px solid var(--accent-blue);
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+
+    /* Controls */
+    .controls {
+      background: white;
+      padding: 16px;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      margin: 16px 0;
+    }
+
+    .controls label {
+      display: block;
+      font-weight: 700;
+      margin: 10px 0 5px;
+    }
+
+    .controls select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      background: rgba(74, 144, 226, 0.08);
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    /* Popup */
+    .popup {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .popup.show { display: flex; }
+
+    .popup-content {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      max-width: 90%;
+      width: 500px;
+      animation: zoomIn 0.3s;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Profile */
+    .profile-page {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: white;
+      z-index: 3000;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .profile-page.show { display: block; }
+
+    .profile-header {
+      text-align: center;
+      margin: 80px 0 30px;
+    }
+
+    .profile-photo {
+      width: 180px;
+      height: 180px;
+      border-radius: 12px;
+      border: 4px solid var(--accent-pink);
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--pink), var(--blue));
+    }
+
+    .profile-info {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fafafa;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .profile-info div {
+      margin: 12px 0;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-blue);
+    }
+
+    /* Quiz */
+    .quiz-option {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      margin: 8px 0;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--accent-blue);
+      background: rgba(74, 144, 226, 0.05);
+    }
+
+    .quiz-option.selected {
+      border-color: var(--accent-blue);
+      background: rgba(74, 144, 226, 0.1);
+    }
+
+    .quiz-option.correct {
+      border-color: #4ade80;
+      background: rgba(74, 222, 128, 0.1);
+    }
+
+    .quiz-option.wrong {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Music Control */
+    .music-control {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1500;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-pink));
+      color: white;
+      padding: 12px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      font-weight: 700;
+      display: none;
+      gap: 8px;
+    }
+
+    .music-control.show { display: flex; }
+
+    /* Flowers */
+    .flower {
+      position: fixed;
+      bottom: -100px;
+      font-size: 2rem;
+      animation: floatUp 10s ease-in infinite;
+      pointer-events: none;
+      opacity: 0.7;
+      z-index: 1;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+      50% { opacity: 0.7; }
+      100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--muted);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="main-header">
+    <div class="header-content">
+      <div class="logo">⚛️ IKATAN KIMIA</div>
+      <div class="identity-badge">
+        <strong>Jamila Fitrianingsih</strong><br>
+        NIM. 220331600596 | Offering A | Universitas Negeri Malang
+      </div>
+      <button class="profile-btn" onclick="showProfile()">👤 Profil</button>
+    </div>
+  </header>
+
+  <nav class="nav-menu">
+    <div class="nav-items">
+      <button class="nav-item active" onclick="showModule(0)">🏠 Beranda</button>
+      <button class="nav-item" onclick="showModule(1)">📚 Teori Dasar</button>
+      <button class="nav-item" onclick="showModule(2)">⚡ Ionik</button>
+      <button class="nav-item" onclick="showModule(3)">🔗 Kovalen</button>
+      <button class="nav-item" onclick="showModule(4)">🔩 Logam</button>
+      <button class="nav-item" onclick="showModule(5)">🧬 Sifat Senyawa</button>
+      <button class="nav-item" onclick="showModule(6)">🎯 Kuis</button>
+    </div>
+  </nav>
+
+  <div id="flowersContainer"></div>
+
+  <div class="music-control" id="musicControl" onclick="toggleMusic()">
+    <span id="musicIcon">🔊</span>
+    <span>Musik</span>
+  </div>
+
+  <main class="main-content">
+    
+    <!-- MODUL 0: BERANDA -->
+    <div id="module0" class="module active">
+      <div class="panel">
+        <h2>🎓 Selamat Datang di Pembelajaran Ikatan Kimia Interaktif</h2>
+        <p style="font-size: 1.1rem;">
+          Aplikasi pembelajaran digital dengan visualisasi 3D interaktif, simulasi, dan latihan soal untuk memahami ikatan kimia secara mendalam.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h3>🧪 Materi Pembelajaran</h3>
+          <ul style="line-height: 2;">
+            <li>✅ Teori dasar pembentukan ikatan kimia</li>
+            <li>✅ Ikatan ionik dan sifat-sifatnya</li>
+            <li>✅ Ikatan kovalen dan bentuk molekul</li>
+            <li>✅ Ikatan logam dan konduktivitas</li>
+            <li>✅ Gaya antarmolekul</li>
+            <li>✅ Keterkaitan jenis ikatan dengan sifat senyawa</li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <h3>🎯 Fitur Interaktif</h3>
+          <ul style="line-height: 2;">
+            <li>🔬 Visualisasi 3D molekul yang dapat dirotasi</li>
+            <li>⚗️ Simulasi pembentukan ikatan</li>
+            <li>📊 Latihan soal dan kuis interaktif</li>
+            <li>🎥 Video pembelajaran</li>
+            <li>🎵 Musik latar pembelajaran</li>
+            <li>📱 Responsif untuk semua perangkat</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>💡 Tujuan Pembelajaran</h3>
+        <div class="grid-3">
+          <div class="card">
+            <h3>Mengenal Jenis Ikatan</h3>
+            <p>Memahami ikatan ionik, kovalen, koordinasi, dan logam secara komprehensif.</p>
+          </div>
+          <div class="card">
+            <h3>Memahami Elektron</h3>
+            <p>Menguasai peran elektron valensi dan elektronegativitas dalam pembentukan ikatan.</p>
+          </div>
+          <div class="card">
+            <h3>Mengaitkan Struktur</h3>
+            <p>Menganalisis hubungan jenis ikatan dengan sifat fisika dan kimia senyawa.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin: 40px 0;">
+        <button class="btn btn-primary" onclick="showModule(1)" style="font-size: 1.2rem; padding: 15px 40px;">
+          ▶ Mulai Belajar Sekarang
+        </button>
+      </div>
+    </div>
+
+    <!-- MODUL 1: TEORI DASAR -->
+    <div id="module1" class="module">
+      <div class="panel">
+        <h2>📚 Teori Dasar Ikatan Kimia - Konsep Lengkap</h2>
+        
+        <h3>Apa itu Ikatan Kimia?</h3>
+        <p>
+          Ikatan kimia adalah <strong>gaya tarik-menarik</strong> antara atom-atom yang menyebabkan terbentuknya molekul dan senyawa. 
+          Atom-atom berikatan untuk mencapai <strong>keadaan energi yang lebih rendah</strong> (lebih stabil) dan 
+          <strong>konfigurasi elektron yang stabil</strong>, umumnya mengikuti <strong>aturan oktet</strong> (8 elektron di kulit terluar) 
+          atau <strong>aturan duplet</strong> (2 elektron untuk atom kecil seperti H dan He).
+        </p>
+
+        <h3>Mengapa Atom Berikatan?</h3>
+        <div class="info-box">
+          <strong>Prinsip Kestabilan Energi:</strong><br>
+          Atom cenderung mencapai konfigurasi elektron seperti gas mulia (stabil) karena memiliki energi terendah. 
+          Dengan berikatan, atom dapat:
+          <ul style="margin: 10px 0 0 20px;">
+            <li>Mengisi kulit elektron terluar (valensi)</li>
+            <li>Menurunkan energi potensial sistem</li>
+            <li>Mencapai konfigurasi elektron yang stabil</li>
+          </ul>
+        </div>
+
+        <h3>Jenis-jenis Ikatan Kimia</h3>
+        
+        <div class="info-box">
+          <strong>1. Ikatan Ionik (Transfer Elektron)</strong><br>
+          <strong>Mekanisme:</strong> Atom logam (energi ionisasi rendah) <u>melepaskan elektron</u> membentuk kation (+), 
+          sedangkan atom non-logam (afinitas elektron tinggi) <u>menerima elektron</u> membentuk anion (−). 
+          Ion-ion yang terbentuk saling tarik-menarik melalui <strong>gaya elektrostatik</strong> yang sangat kuat.<br>
+          <strong>Contoh:</strong> Na → Na⁺ + e⁻; Cl + e⁻ → Cl⁻; Na⁺ + Cl⁻ → NaCl<br>
+          <strong>Karakteristik:</strong>
+          <ul style="margin: 5px 0 0 20px;">
+            <li>Titik leleh dan titik didih sangat tinggi (>800°C)</li>
+            <li>Membentuk kristal ionik yang keras tetapi rapuh (getas)</li>
+            <li>Menghantarkan listrik dalam bentuk larutan atau lelehan</li>
+            <li>Larut dalam pelarut polar (air)</li>
+          </ul>
+        </div>
+
+        <div class="info-box">
+          <strong>2. Ikatan Kovalen (Berbagi Elektron)</strong><br>
+          <strong>Mekanisme:</strong> Dua atom (biasanya non-logam) <u>berbagi pasangan elektron</u> untuk mencapai oktet. 
+          Pasangan elektron yang dibagi disebut <strong>Pasangan Elektron Ikatan (PEI)</strong>.<br>
+          <strong>Jenis berdasarkan jumlah pasangan elektron:</strong>
+          <ul style="margin: 5px 0 0 20px;">
+            <li><strong>Kovalen Tunggal:</strong> 1 pasang elektron dibagi (PEI = 1). Contoh: H−H, Cl−Cl</li>
+            <li><strong>Kovalen Rangkap Dua:</strong> 2 pasang elektron dibagi (PEI = 2). Contoh: O=O, C=O</li>
+            <li><strong>Kovalen Rangkap Tiga:</strong> 3 pasang elektron dibagi (PEI = 3). Contoh: N≡N, C≡C</li>
+            <li><strong>Kovalen Koordinasi:</strong> Kedua elektron disumbangkan oleh satu atom. Contoh: NH₃ + H⁺ → NH₄⁺</li>
+          </ul>
+          <strong>Karakteristik:</strong>
+          <ul style="margin: 5px 0 0 20px;">
+            <li>Titik leleh dan titik didih relatif rendah</li>
+            <li>Tidak menghantarkan listrik (bersifat isolator)</li>
+            <li>Dapat berwujud gas, cair, atau padat pada suhu ruang</li>
+            <li>Larut dalam pelarut nonpolar atau polar tergantung polaritasnya</li>
+          </ul>
+        </div>
+
+        <div class="info-box">
+          <strong>3. Ikatan Logam (Lautan Elektron)</strong><br>
+          <strong>Mekanisme:</strong> Atom-atom logam melepaskan elektron valensinya membentuk ion positif (kation). 
+          Elektron-elektron yang dilepaskan tidak dimiliki oleh satu atom tertentu, melainkan <u>terdelokalisasi</u> 
+          dan bergerak bebas di antara ion-ion logam, membentuk <strong>"lautan elektron"</strong>.<br>
+          <strong>Model Lautan Elektron:</strong> Ion logam (+) tersusun dalam kisi kristal yang rapat, 
+          dikelilingi oleh elektron yang bergerak bebas. Gaya tarik antara ion positif dan lautan elektron 
+          negatif inilah yang membentuk ikatan logam.<br>
+          <strong>Karakteristik:</strong>
+          <ul style="margin: 5px 0 0 20px;">
+            <li>Konduktor listrik dan panas yang sangat baik (elektron bebas bergerak)</li>
+            <li>Dapat ditempa (malleable) dan diregangkan (ductile)</li>
+            <li>Memiliki kilap logam (elektron memantulkan cahaya)</li>
+            <li>Titik leleh bervariasi (Na: 98°C; Fe: 1538°C; W: 3422°C)</li>
+          </ul>
+        </div>
+
+        <h3>Model & Teori Penting dalam Ikatan Kimia</h3>
+        
+        <div class="info-box">
+          <strong>A. Teori Lewis (Struktur Lewis)</strong><br>
+          Dikembangkan oleh Gilbert N. Lewis (1916). Teori ini menggunakan titik-titik untuk merepresentasikan 
+          elektron valensi atom dan menggambarkan ikatan sebagai pasangan elektron yang dibagi.<br>
+          <strong>Aturan Oktet Lewis:</strong> Atom cenderung berikatan hingga memiliki 8 elektron di kulit valensi 
+          (atau 2 elektron untuk H dan He).<br>
+          <strong>Contoh:</strong> H₂O memiliki 2 PEI (ikatan O−H) dan 2 PEB (pasangan elektron bebas pada O).
+        </div>
+
+        <div class="info-box">
+          <strong>B. Teori VSEPR (Valence Shell Electron Pair Repulsion)</strong><br>
+          Teori ini menyatakan bahwa <strong>pasangan elektron di sekitar atom pusat akan saling tolak-menolak</strong> 
+          sehingga mengatur dirinya sejauh mungkin untuk meminimalkan tolakan. Ini menentukan <strong>bentuk geometri molekul</strong>.<br>
+          <strong>Bentuk Molekul Berdasarkan VSEPR:</strong>
+          <ul style="margin: 5px 0 0 20px;">
+            <li><strong>Linear:</strong> 2 PEI, 0 PEB → sudut 180° (Contoh: CO₂, BeCl₂)</li>
+            <li><strong>Bengkok/Angular:</strong> 2 PEI, 1-2 PEB → sudut ~104.5° (Contoh: H₂O)</li>
+            <li><strong>Trigonal Planar:</strong> 3 PEI, 0 PEB → sudut 120° (Contoh: BF₃)</li>
+            <li><strong>Piramida Trigonal:</strong> 3 PEI, 1 PEB → sudut ~107° (Contoh: NH₃)</li>
+            <li><strong>Tetrahedral:</strong> 4 PEI, 0 PEB → sudut 109.5° (Contoh: CH₄)</li>
+          </ul>
+          <strong>Catatan:</strong> PEB (Pasangan Elektron Bebas) memiliki tolakan lebih besar daripada PEI, 
+          sehingga mengubah sudut ikatan.
+        </div>
+
+        <div class="info-box">
+          <strong>C. Teori Hibridisasi</strong><br>
+          Teori yang menjelaskan bagaimana <strong>orbital atom bercampur</strong> membentuk <strong>orbital hybrid</strong> 
+          baru yang sesuai untuk pembentukan ikatan.<br>
+          <strong>Jenis Hibridisasi:</strong>
+          <ul style="margin: 5px 0 0 20px;">
+            <li><strong>sp:</strong> 1 orbital s + 1 orbital p → 2 orbital sp (linear, 180°)</li>
+            <li><strong>sp²:</strong> 1 orbital s + 2 orbital p → 3 orbital sp² (trigonal planar, 120°)</li>
+            <li><strong>sp³:</strong> 1 orbital s + 3 orbital p → 4 orbital sp³ (tetrahedral, 109.5°)</li>
+          </ul>
+          <strong>Contoh:</strong> Atom C pada CH₄ mengalami hibridisasi sp³, membentuk 4 ikatan sigma (σ) 
+          dengan 4 atom H dalam bentuk tetrahedral.
+        </div>
+
+        <h3>Konsep Penting Lainnya</h3>
+        
+        <div class="info-box">
+          <strong>Elektronegativitas dan Polaritas Ikatan</strong><br>
+          <strong>Elektronegativitas (EN):</strong> Kemampuan atom untuk menarik elektron dalam ikatan.<br>
+          <strong>Skala Pauling:</strong> F (4.0) > O (3.5) > N/Cl (3.0) > C (2.5) > H (2.1)<br>
+          <strong>Perbedaan EN menentukan jenis ikatan:</strong>
+          <ul style="margin: 5px 0 0 20px;">
+            <li><strong>ΔEN > 1.7:</strong> Ikatan Ionik (Na−Cl: 3.0−0.9 = 2.1)</li>
+            <li><strong>0.5 < ΔEN < 1.7:</strong> Kovalen Polar (H−O: 3.5−2.1 = 1.4)</li>
+            <li><strong>ΔEN < 0.5:</strong> Kovalen Nonpolar (H−H: 2.1−2.1 = 0)</li>
+          </ul>
+        </div>
+
+        <div class="info-box">
+          <strong>Energi Ikatan dan Panjang Ikatan</strong><br>
+          <strong>Energi Ikatan:</strong> Energi yang diperlukan untuk memutuskan 1 mol ikatan dalam fase gas.<br>
+          <strong>Hubungan:</strong>
+          <ul style="margin: 5px 0 0 20px;">
+            <li>Ikatan rangkap 3 > Ikatan rangkap 2 > Ikatan tunggal (energi ikatan)</li>
+            <li>Ikatan tunggal > Ikatan rangkap 2 > Ikatan rangkap 3 (panjang ikatan)</li>
+          </ul>
+          <strong>Contoh:</strong> N≡N (945 kJ/mol, 110 pm) lebih kuat dan lebih pendek dari N=N (418 kJ/mol, 125 pm)
+        </div>
+
+        <h3>📊 Visualisasi Interaktif: Molekul CO₂ (Karbon Dioksida)</h3>
+        <p style="color: var(--muted); font-style: italic;">
+          Gunakan mouse untuk merotasi molekul. Lihat struktur ikatan rangkap dua C=O dari berbagai sudut!
+        </p>
+        <div class="viewer-3d" id="co2Viewer">
+          <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); flex-direction: column;">
+            <p style="font-size: 1.1rem; margin-bottom: 10px;">⏳ Memuat visualisasi 3D...</p>
+            <p style="font-size: 0.85rem;">Jika tidak muncul, klik tombol di bawah</p>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="btn btn-primary" id="btnPauseCO2">⏸ Pause Rotasi</button>
+          <button class="btn btn-secondary" onclick="showCO2Info()">ℹ️ Info Detail CO₂</button>
+          <button class="btn btn-secondary" onclick="reloadCO2()" id="btnReloadCO2">🔄 Muat Ulang Visualisasi</button>
+        </div>
+
+        <div class="info-box" id="co2Info" style="display:none;">
+          <strong>🔬 CO₂ – Karbon Dioksida (Analisis Lengkap)</strong><br><br>
+          <strong>Jenis ikatan:</strong> Kovalen rangkap dua (C=O) pada kedua sisi<br>
+          <strong>Jumlah ikatan:</strong> 2 ikatan rangkap dua<br>
+          <strong>PEI per ikatan C=O:</strong> 4 elektron (2 pasang elektron)<br>
+          <strong>Total PEI dalam molekul:</strong> 8 elektron (4 pasang)<br>
+          <strong>PEB pada atom C:</strong> 0 pasang<br>
+          <strong>PEB pada setiap atom O:</strong> 2 pasang (4 elektron)<br>
+          <strong>Hibridisasi atom C:</strong> sp (1 orbital s + 1 orbital p)<br>
+          <strong>Bentuk molekul (VSEPR):</strong> Linear dengan sudut 180°<br>
+          <strong>Polaritas:</strong> Non-polar (meskipun ikatan C=O polar, molekul simetris sehingga momen dipol saling meniadakan)<br>
+          <strong>Panjang ikatan C=O:</strong> ~116 pm (lebih pendek dari ikatan tunggal C−O: ~143 pm)<br>
+          <strong>Energi ikatan C=O:</strong> ~799 kJ/mol (lebih kuat dari ikatan tunggal)<br><br>
+          <strong>Peran dalam kehidupan:</strong>
+          <ul style="margin: 5px 0 0 20px;">
+            <li>Produk akhir respirasi seluler (C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O)</li>
+            <li>Reaktan fotosintesis (6CO₂ + 6H₂O + cahaya → C₆H₁₂O₆ + 6O₂)</li>
+            <li>Gas rumah kaca yang menyebabkan pemanasan global</li>
+            <li>Digunakan dalam minuman berkarbonasi dan es kering (dry ice)</li>
+          </ul>
+        </div>
+
+        <h3>🎥 Video Pembelajaran: Teori Dasar Ikatan Kimia</h3>
+        <div class="video-container">
+          <video controls style="width: 100%; max-width: 800px; border-radius: 8px;">
+            <source src="teori-ikatan-kimia.mp4" type="video/mp4">
+            Browser Anda tidak mendukung tag video. 
+            <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">Tonton di YouTube</a>
+          </video>
+          <p style="color: var(--muted); font-size: 0.9rem; margin-top: 10px;">
+            Video ini menjelaskan konsep dasar ikatan kimia, teori Lewis, VSEPR, dan hibridisasi secara visual.
+          </p>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <button class="btn btn-primary" onclick="showModule(2)">Lanjut: Ikatan Ionik →</button>
+      </div>
+    </div>
+
+    <!-- MODUL 2: IKATAN IONIK -->
+    <div id="module2" class="module">
+      <div class="grid-2">
+        <div class="panel">
+          <h2>⚡ Ikatan Ionik – Teori Lengkap & Sifat</h2>
+          
+          <h3>1. Definisi & Mekanisme Pembentukan</h3>
+          <p>
+            Ikatan ionik adalah ikatan kimia yang terbentuk melalui <strong>transfer elektron</strong> 
+            dari atom logam (donor elektron) ke atom non-logam (akseptor elektron), menghasilkan 
+            <strong>kation</strong> (ion positif) dan <strong>anion</strong> (ion negatif) yang saling 
+            tarik-menarik melalui <strong>gaya elektrostatik Coulomb</strong>.
+          </p>
+
+          <div class="info-box">
+            <strong>Proses Pembentukan Ikatan Ionik (Contoh: NaCl)</strong><br>
+            <strong>Langkah 1:</strong> Ionisasi Logam<br>
+            Na (11 elektron: 2, 8, 1) → Na⁺ (10 elektron: 2, 8) + e⁻<br>
+            <em>Natrium melepaskan 1 elektron valensi untuk mencapai konfigurasi gas mulia (Ne)</em><br><br>
+            
+            <strong>Langkah 2:</strong> Afinitas Elektron Non-Logam<br>
+            Cl (17 elektron: 2, 8, 7) + e⁻ → Cl⁻ (18 elektron: 2, 8, 8)<br>
+            <em>Klorin menerima 1 elektron untuk mencapai konfigurasi gas mulia (Ar)</em><br><br>
+            
+            <strong>Langkah 3:</strong> Tarik-Menarik Elektrostatik<br>
+            Na⁺ + Cl⁻ → NaCl (kristal ionik)<br>
+            <em>Gaya Coulomb: F = k × (q₁ × q₂) / r²</em>
+          </div>
+
+          <h3>2. Energi yang Terlibat dalam Ikatan Ionik</h3>
+          
+          <div class="info-box">
+            <strong>A. Energi Ionisasi (EI)</strong><br>
+            Energi yang <u>diperlukan</u> untuk melepaskan elektron dari atom netral menjadi ion positif.<br>
+            <strong>Contoh:</strong> Na(g) → Na⁺(g) + e⁻ &nbsp;&nbsp; EI = +496 kJ/mol (endoterm)<br>
+            <strong>Faktor yang mempengaruhi:</strong>
+            <ul style="margin: 5px 0 0 20px;">
+              <li>Jari-jari atom (↑ jari-jari → ↓ EI)</li>
+              <li>Muatan inti efektif (↑ Z<sub>eff</sub> → ↑ EI)</li>
+              <li>Konfigurasi elektron (elektron terakhir yang stabil → ↑ EI)</li>
+            </ul>
+          </div>
+
+          <div class="info-box">
+            <strong>B. Afinitas Elektron (AE)</strong><br>
+            Energi yang <u>dilepaskan</u> ketika atom netral menerima elektron menjadi ion negatif.<br>
+            <strong>Contoh:</strong> Cl(g) + e⁻ → Cl⁻(g) &nbsp;&nbsp; AE = −349 kJ/mol (eksoterm)<br>
+            <strong>Catatan:</strong> AE biasanya negatif (melepas energi), kecuali untuk gas mulia dan beberapa unsur.
+          </div>
+
+          <div class="info-box">
+            <strong>C. Energi Kisi Kristal (U)</strong><br>
+            Energi yang <u>dilepaskan</u> ketika ion-ion gas membentuk 1 mol kristal ionik padat, atau 
+            energi yang <u>diperlukan</u> untuk memisahkan 1 mol kristal menjadi ion-ion gas.<br>
+            <strong>Contoh:</strong> Na⁺(g) + Cl⁻(g) → NaCl(s) &nbsp;&nbsp; U = −787 kJ/mol<br>
+            <strong>Faktor yang mempengaruhi (Persamaan Born-Landé):</strong>
+            <ul style="margin: 5px 0 0 20px;">
+              <li><strong>Muatan ion:</strong> ↑ muatan → ↑ energi kisi (MgO > NaCl)</li>
+              <li><strong>Jarak antar ion:</strong> ↓ jarak → ↑ energi kisi (LiF > LiI)</li>
+            </ul>
+          </div>
+
+          <div class="info-box">
+            <strong>D. Siklus Born-Haber</strong><br>
+            Diagram energi yang menghubungkan semua proses pembentukan senyawa ionik:<br>
+            <strong>ΔH<sub>f</sub> = ΔH<sub>sub</sub> + EI + ½ D + AE + U</strong><br>
+            <em>Di mana: ΔH<sub>f</sub> = entalpi pembentukan standar</em>
+          </div>
+
+          <h3>3. Struktur Kristal Ionik</h3>
+          <p>
+            Ion-ion dalam senyawa ionik tersusun dalam <strong>kisi kristal 3 dimensi</strong> yang teratur 
+            dan berulang, dengan setiap ion dikelilingi oleh ion berlawanan muatan.
+          </p>
+
+          <div class="info-box">
+            <strong>Tipe Struktur Kristal:</strong>
+            <ul style="margin: 5px 0 0 20px;">
+              <li><strong>Tipe NaCl (rock salt):</strong> Koordinasi 6:6, contoh: NaCl, KCl, MgO</li>
+              <li><strong>Tipe CsCl:</strong> Koordinasi 8:8, contoh: CsCl</li>
+              <li><strong>Tipe ZnS (sphalerite/wurtzite):</strong> Koordinasi 4:4, contoh: ZnS, BeO</li>
+              <li><strong>Tipe CaF₂ (fluorit):</strong> Koordinasi 8:4, contoh: CaF₂, SrF₂</li>
+            </ul>
+          </div>
+
+          <h3>4. Sifat Fisik Senyawa Ionik</h3>
+          
+          <div class="info-box">
+            <strong>a) Titik Leleh & Titik Didih Tinggi</strong><br>
+            Gaya elektrostatik antar ion sangat kuat, memerlukan energi besar untuk memutuskan ikatan.<br>
+            <strong>Contoh:</strong> NaCl (801°C), MgO (2852°C), CaCl₂ (772°C)
+          </div>
+
+          <div class="info-box">
+            <strong>b) Konduktivitas Listrik</strong><br>
+            <strong>Padatan:</strong> TIDAK menghantarkan (ion terikat kuat dalam kisi)<br>
+            <strong>Lelehan/Larutan:</strong> MENGHANTARKAN (ion bebas bergerak)<br>
+            <em>Aplikasi: Elektrolisis, baterai, fuel cell</em>
+          </div>
+
+          <div class="info-box">
+            <strong>c) Keras tetapi Rapuh (Getas)</strong><br>
+            Kristal ionik keras karena ikatan kuat, tetapi rapuh karena pergeseran lapisan ion 
+            menyebabkan ion sejenis berdekatan → tolakan → pecah.<br>
+            <strong>Contoh:</strong> Jika dipukul, kristal NaCl mudah pecah sepanjang bidang tertentu.
+          </div>
+
+          <div class="info-box">
+            <strong>d) Kelarutan dalam Air</strong><br>
+            Banyak senyawa ionik larut dalam air karena molekul air (polar) dapat menarik dan 
+            mengelilingi ion (proses <strong>hidrasi</strong>).<br>
+            <strong>Energi hidrasi</strong> harus > <strong>energi kisi</strong> agar larut.<br>
+            <strong>Contoh:</strong> NaCl larut (ΔH<sub>hid</sub> ≈ ΔH<sub>kisi</sub>), AgCl tidak larut (ΔH<sub>kisi</sub> >> ΔH<sub>hid</sub>)
+          </div>
+
+          <h3>5. Aplikasi Senyawa Ionik</h3>
+          <ul>
+            <li><strong>Elektrolit dalam baterai:</strong> LiCoO₂ (baterai Li-ion)</li>
+            <li><strong>Bahan refraktori:</strong> MgO, Al₂O₃ (tahan panas tinggi)</li>
+            <li><strong>Keramik:</strong> Al₂O₃, SiC (isolator listrik dan panas)</li>
+            <li><strong>Garam konsumsi:</strong> NaCl, KI (yodium)</li>
+            <li><strong>Pupuk:</strong> KCl, KNO₃, NH₄NO₃</li>
+            <li><strong>Obat-obatan:</strong> NaHCO₃ (antasida), MgSO₄ (pencahar)</li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="panel">
+            <h3>🔬 Visualisasi 3D Interaktif</h3>
+            <p style="color: var(--muted); font-size: 0.9rem; font-style: italic;">
+              Drag dengan mouse untuk merotasi molekul. Pilih unsur yang berbeda untuk melihat berbagai senyawa ionik!
+            </p>
+            <div class="viewer-3d" id="ionicViewer"></div>
+          </div>
+
+          <div class="controls">
+            <label>🔵 Pilih Logam (Kation):</label>
+            <select id="metalSelect">
+              <option value="Na">Na - Natrium (Na⁺)</option>
+              <option value="K">K - Kalium (K⁺)</option>
+              <option value="Mg">Mg - Magnesium (Mg²⁺)</option>
+              <option value="Ca">Ca - Kalsium (Ca²⁺)</option>
+            </select>
+            
+            <label>🔴 Pilih Non-Logam (Anion):</label>
+            <select id="nonmetalSelect">
+              <option value="Cl">Cl - Klorin (Cl⁻)</option>
+              <option value="F">F - Fluor (F⁻)</option>
+              <option value="O">O - Oksigen (O²⁻)</option>
+              <option value="S">S - Belerang (S²⁻)</option>
+            </select>
+            
+            <button class="btn btn-primary" onclick="buildIonic()" style="width: 100%; margin-top: 10px;">
+              🔬 Bentuk Senyawa Ionik
+            </button>
+          </div>
+
+          <div class="panel" id="ionicDetail">
+            <h3>📊 Detail Senyawa</h3>
+            <p id="ionicInfo" style="color: var(--muted);">
+              <em>Pilih logam dan non-logam, kemudian klik "Bentuk Senyawa Ionik" untuk melihat informasi lengkap.</em>
+            </p>
+          </div>
+
+          <div class="panel">
+            <h3>🎥 Video Pembelajaran: Ikatan Ionik</h3>
+            <div class="video-container">
+              <video controls style="width: 100%; border-radius: 8px;">
+                <source src="IKATAN KIMIA  IKATAN ION  KIMIA SMA KELAS 10 - WIN'S CHEMISTRY CLASS (720p, h264, youtube).mp4" type="video/mp4">
+                Browser Anda tidak mendukung tag video.
+              </video>
+              <p style="color: var(--muted); font-size: 0.85rem; margin-top: 8px;">
+                Video ini menjelaskan pembentukan ikatan ionik, energi kisi, dan sifat-sifat senyawa ionik.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <button class="btn btn-secondary" onclick="showModule(1)">← Teori Dasar</button>
+        <button class="btn btn-primary" onclick="showModule(3)">Ikatan Kovalen →</button>
+      </div>
+    </div>
+
+    <!-- MODUL 3: IKATAN KOVALEN -->
+    <div id="module3" class="module">
+      <div class="grid-2">
+        <div class="panel">
+          <h2>🔗 Ikatan Kovalen</h2>
+          
+          <h3>Definisi</h3>
+          <p>
+            Ikatan kovalen terbentuk ketika dua atom non-logam <strong>berbagi pasangan elektron</strong> 
+            untuk mencapai konfigurasi oktet/duplet yang stabil.
+          </p>
+
+          <h3>Tipe Ikatan Kovalen</h3>
+          
+          <div class="info-box">
+            <strong>a) Kovalen Tunggal</strong><br>
+            1 pasang elektron dibagi (PEI=1). Contoh: H₂, Cl₂. Ikatan paling panjang, energi paling rendah.
+          </div>
+
+          <div class="info-box">
+            <strong>b) Kovalen Rangkap Dua</strong><br>
+            2 pasang elektron dibagi (PEI=2). Contoh: O₂, CO₂. Ikatan lebih kuat dan lebih pendek.
+          </div>
+
+          <div class="info-box">
+            <strong>c) Kovalen Rangkap Tiga</strong><br>
+            3 pasang elektron dibagi (PEI=3). Contoh: N₂. Ikatan terkuat, terpendek, sangat stabil.
+          </div>
+
+          <div class="info-box">
+            <strong>d) Kovalen Koordinasi</strong><br>
+            Satu atom menyumbangkan kedua elektron. Contoh: CO, NH₄⁺. Ikatan tetap bersifat kovalen.
+          </div>
+
+          <h3>Bentuk Molekul (VSEPR)</h3>
+          <ul>
+            <li><strong>Linear (180°):</strong> H₂, O₂, N₂, CO</li>
+            <li><strong>Bengkok (~104.5°):</strong> H₂O</li>
+            <li><strong>Piramida (~107°):</strong> NH₃</li>
+            <li><strong>Tetrahedral (~109.5°):</strong> CH₄</li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="panel">
+            <h3>Visualisasi Molekul</h3>
+            <div class="viewer-3d" id="covalentViewer"></div>
+          </div>
+
+          <div class="controls">
+            <label>Pilih Molekul:</label>
+            <select id="moleculeSelect" onchange="buildCovalent()">
+              <option value="H2">H₂ (Hidrogen)</option>
+              <option value="O2">O₂ (Oksigen)</option>
+              <option value="N2">N₂ (Nitrogen)</option>
+              <option value="H2O">H₂O (Air)</option>
+              <option value="NH3">NH₃ (Amonia)</option>
+              <option value="CO">CO (Karbon Monoksida)</option>
+            </select>
+            <button class="btn btn-primary" onclick="buildCovalent()">🔬 Tampilkan</button>
+          </div>
+
+          <div class="panel" id="covalentDetail">
+            <h3>Detail Molekul</h3>
+            <p id="covalentInfo"><em>Pilih molekul untuk melihat detail</em></p>
+          </div>
+
+          <div class="panel">
+            <h3>🎥 Video Pembelajaran: Ikatan Kovalen</h3>
+            <div class="video-container">
+              <video controls style="width: 100%; border-radius: 8px;">
+                <source src="ikatan kovalen.mp4.mp4" type="video/mp4">
+                Browser Anda tidak mendukung tag video.
+              </video>
+              <p style="color: var(--muted); font-size: 0.85rem; margin-top: 8px;">
+                Video menjelaskan pembentukan ikatan kovalen tunggal, rangkap dua, rangkap tiga, dan bentuk molekul.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <button class="btn btn-secondary" onclick="showModule(2)">← Ikatan Ionik</button>
+        <button class="btn btn-primary" onclick="showModule(4)">Ikatan Logam →</button>
+      </div>
+    </div>
+
+    <!-- MODUL 4: IKATAN LOGAM & GAYA ANTARMOLEKUL -->
+    <div id="module4" class="module">
+      <div class="panel">
+        <h2>🔩 Ikatan Logam & Gaya Antarmolekul</h2>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h3>Ikatan Logam</h3>
+          <p>
+            Gaya tarik elektrostatik antara ion logam positif dan <strong>lautan elektron</strong> 
+            yang terdelokalisasi dan bergerak bebas di seluruh kisi kristal.
+          </p>
+
+          <h3>Karakteristik:</h3>
+          <ul>
+            <li>Elektron valensi tidak dimiliki satu atom</li>
+            <li>Konduktivitas listrik & panas tinggi</li>
+            <li>Struktur kristal rapat (BCC, FCC, HCP)</li>
+            <li>Dapat ditempa dan diregangkan</li>
+            <li>Kilap logam (memantulkan cahaya)</li>
+          </ul>
+
+          <h3>Gaya Antarmolekul</h3>
+          <p>
+            Gaya tarik antar molekul netral yang memengaruhi titik leleh, titik didih, dan sifat fisik lainnya.
+          </p>
+
+          <h3>Jenis Gaya:</h3>
+          <ul>
+            <li><strong>Dipol-Dipol:</strong> Antara molekul polar (HCl, SO₂)</li>
+            <li><strong>Ikatan Hidrogen:</strong> H terikat N/O/F (H₂O, NH₃, HF) - terkuat</li>
+            <li><strong>Gaya London:</strong> Dipol sesaat, semua molekul (CH₄, I₂, CO₂)</li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="panel">
+            <h3>Visualisasi</h3>
+            <div class="viewer-3d" id="metallicViewer"></div>
+          </div>
+
+          <div class="controls">
+            <button class="btn btn-primary" onclick="showMetallic()">🔩 Ikatan Logam (Fe)</button>
+            <button class="btn btn-secondary" onclick="showIntermolecular()">💧 Gaya Antarmolekul (H₂O)</button>
+          </div>
+
+          <div class="panel">
+            <h3>Contoh Aplikasi</h3>
+            <ul>
+              <li><strong>Cu (Tembaga):</strong> Kabel listrik</li>
+              <li><strong>Fe (Besi):</strong> Konstruksi baja</li>
+              <li><strong>H₂O:</strong> Pelarut universal</li>
+              <li><strong>CH₄:</strong> Bahan bakar gas</li>
+            </ul>
+          </div>
+
+          <div class="panel">
+            <h3>🎥 Video Pembelajaran: Ikatan Logam</h3>
+            <div class="video-container">
+              <video controls style="width: 100%; border-radius: 8px;">
+                <source src="Ikatan Logam.mp4.mp4" type="video/mp4">
+                Browser Anda tidak mendukung tag video.
+              </video>
+              <p style="color: var(--muted); font-size: 0.85rem; margin-top: 8px;">
+                Video menjelaskan konsep lautan elektron dalam ikatan logam dan sifat-sifat logam.
+              </p>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-top: 20px;">
+            <h3>🎥 Video Pembelajaran: Gaya Antarmolekul</h3>
+            <div class="video-container">
+              <video controls style="width: 100%; border-radius: 8px;">
+                <source src="Gaya antar molekul.mp4.mp4" type="video/mp4">
+                Browser Anda tidak mendukung tag video.
+              </video>
+              <p style="color: var(--muted); font-size: 0.85rem; margin-top: 8px;">
+                Video menjelaskan gaya dipol-dipol, ikatan hidrogen, dan gaya dispersi London.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <button class="btn btn-secondary" onclick="showModule(3)">← Ikatan Kovalen</button>
+        <button class="btn btn-primary" onclick="showModule(5)">Sifat Senyawa →</button>
+      </div>
+    </div>
+
+    <!-- MODUL 5: KETERKAITAN SIFAT -->
+    <div id="module5" class="module">
+      <div class="panel">
+        <h2>🧬 Keterkaitan Jenis Ikatan dengan Sifat Senyawa</h2>
+        
+        <p style="font-size: 1.05rem;">
+          Jenis ikatan kimia menentukan sifat fisik dan kimia senyawa seperti titik leleh, 
+          konduktivitas listrik, kelarutan, dan kekuatan mekanik.
+        </p>
+
+        <h3>Perbandingan Jenis Ikatan</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Jenis Ikatan</th>
+              <th>Komponen</th>
+              <th>Sifat Fisik</th>
+              <th>Konduktivitas</th>
+              <th>Contoh</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Ionik</strong></td>
+              <td>Kation & Anion</td>
+              <td>Titik leleh tinggi, keras tapi rapuh</td>
+              <td>Saat cair/larut</td>
+              <td>NaCl, MgO</td>
+            </tr>
+            <tr>
+              <td><strong>Kovalen</strong></td>
+              <td>Atom non-logam</td>
+              <td>Titik leleh rendah, lunak</td>
+              <td>Tidak menghantarkan</td>
+              <td>H₂O, CO₂</td>
+            </tr>
+            <tr>
+              <td><strong>Logam</strong></td>
+              <td>Ion logam & elektron bebas</td>
+              <td>Kuat, ulet, konduktor baik</td>
+              <td>Semua keadaan</td>
+              <td>Fe, Cu, Al</td>
+            </tr>
+            <tr>
+              <td><strong>Antarmolekul</strong></td>
+              <td>Molekul netral</td>
+              <td>Titik didih/leleh rendah</td>
+              <td>Tidak menghantarkan</td>
+              <td>CH₄, I₂</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Aplikasi Kehidupan Sehari-hari</h3>
+        <div class="grid-3">
+          <div class="card">
+            <h3>🧂 NaCl (Garam)</h3>
+            <p><strong>Ikatan:</strong> Ionik</p>
+            <p>Bumbu masakan, pengawet makanan, menghantarkan listrik saat larut dalam air.</p>
+          </div>
+          <div class="card">
+            <h3>💧 H₂O (Air)</h3>
+            <p><strong>Ikatan:</strong> Kovalen</p>
+            <p>Pelarut universal, ikatan hidrogen menyebabkan sifat unik (es mengapung).</p>
+          </div>
+          <div class="card">
+            <h3>🔌 Cu (Tembaga)</h3>
+            <p><strong>Ikatan:</strong> Logam</p>
+            <p>Kabel listrik, konduktor listrik terbaik setelah perak, ulet dan tahan korosi.</p>
+          </div>
+        </div>
+
+        <h3>Latihan Interaktif</h3>
+        <div class="panel">
+          <p>Pilih senyawa untuk melihat struktur dan penjelasan:</p>
+          <div style="text-align: center; margin: 20px 0;">
+            <button class="btn btn-primary" onclick="showCompound('NaCl')">NaCl</button>
+            <button class="btn btn-primary" onclick="showCompound('H2O')">H₂O</button>
+            <button class="btn btn-primary" onclick="showCompound('Fe')">Fe</button>
+            <button class="btn btn-primary" onclick="showCompound('CH4')">CH₄</button>
+          </div>
+          <div class="viewer-3d" id="compoundViewer"></div>
+          <div class="info-box" id="compoundInfo" style="display:none;">
+            <strong id="compoundName"></strong><br>
+            <span id="compoundDetails"></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <button class="btn btn-secondary" onclick="showModule(4)">← Ikatan Logam</button>
+        <button class="btn btn-primary" onclick="showModule(6)">Kuis →</button>
+      </div>
+    </div>
+
+    <!-- MODUL 6: KUIS -->
+    <div id="module6" class="module">
+      <div class="panel">
+        <h2>🎯 Kuis Ikatan Kimia</h2>
+        <p>Uji pemahaman Anda tentang ikatan kimia dengan menjawab 10 pertanyaan berikut!</p>
+      </div>
+
+      <div id="quizContainer"></div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <button class="btn btn-primary" id="submitQuiz" style="display:none; font-size: 1.1rem; padding: 12px 30px;" onclick="submitQuiz()">
+          ✓ Submit Jawaban
+        </button>
+      </div>
+
+      <div id="quizResult"></div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <button class="btn btn-secondary" onclick="showModule(5)">← Sifat Senyawa</button>
+        <button class="btn btn-primary" onclick="showModule(0)">🏠 Kembali ke Beranda</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Profile Page -->
+  <div class="profile-page" id="profilePage">
+    <div class="profile-header">
+      <div class="profile-photo"></div>
+      <h2>👤 Profil Pengguna</h2>
+    </div>
+    <div class="profile-info">
+      <div><strong>Nama:</strong> Jamila Fitrianingsih</div>
+      <div><strong>NIM:</strong> 220331600596</div>
+      <div><strong>Offering:</strong> A</div>
+      <div><strong>Mata Kuliah:</strong> Bahan Ajar Digital Berbasis AI dan Coding untuk Pembelajaran Kimia</div>
+      <div><strong>Universitas:</strong> Universitas Negeri Malang</div>
+      <div><strong>Program:</strong> S2 Pendidikan Kimia</div>
+    </div>
+    <div style="text-align: center; margin: 30px 0;">
+      <button class="btn btn-primary" onclick="hideProfile()">← Kembali ke Modul</button>
+    </div>
+  </div>
+
+  <!-- Popup -->
+  <div class="popup" id="popup">
+    <div class="popup-content">
+      <h2 id="popupTitle">Informasi</h2>
+      <p id="popupText"></p>
+      <button class="btn btn-primary close-popup" onclick="closePopup()">Tutup</button>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 Aplikasi Pembelajaran Ikatan Kimia<br>
+    <strong>Jamila Fitrianingsih</strong> - Universitas Negeri Malang
+  </footer>
+
+  <script>
+    // Global variables
+    let currentModule = 0;
+    let co2Scene, ionicScene, covalentScene, metallicScene, compoundScene;
+    let isMusicPlaying = false;
+    let musicInitialized = false;
+    let synth, part;
+
+    // Flowers animation
+    const flowerEmojis = ['🌸', '🌺', '🌼', '🌻', '🌷', '🌹', '💮'];
+    
+    function createFlower() {
+      const flower = document.createElement('div');
+      flower.className = 'flower';
+      flower.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
+      flower.style.left = Math.random() * 100 + '%';
+      flower.style.animationDuration = (Math.random() * 5 + 8) + 's';
+      document.getElementById('flowersContainer').appendChild(flower);
+      setTimeout(() => flower.remove(), 13000);
+    }
+    
+    setInterval(createFlower, 1000);
+
+    // Music functions
+    async function initMusic() {
+      if (musicInitialized) return;
+      try {
+        await Tone.start();
+        synth = new Tone.PolySynth(Tone.Synth).toDestination();
+        synth.volume.value = -15;
+        
+        const melody = [
+          { time: '0:0', note: 'C4', duration: '4n' },
+          { time: '0:1', note: 'E4', duration: '4n' },
+          { time: '0:2', note: 'G4', duration: '4n' },
+          { time: '0:3', note: 'C5', duration: '4n' },
+          { time: '1:0', note: 'A4', duration: '4n' },
+          { time: '1:1', note: 'G4', duration: '4n' },
+          { time: '1:2', note: 'E4', duration: '4n' },
+          { time: '1:3', note: 'C4', duration: '4n' }
+        ];
+        
+        part = new Tone.Part((time, value) => {
+          synth.triggerAttackRelease(value.note, value.duration, time);
+        }, melody);
+        
+        part.loop = true;
+        part.loopEnd = '2m';
+        part.start(0);
+        Tone.Transport.bpm.value = 90;
+        musicInitialized = true;
+      } catch (error) {
+        console.error('Music init error:', error);
+      }
+    }
+
+    async function toggleMusic() {
+      if (!musicInitialized) await initMusic();
+      
+      if (isMusicPlaying) {
+        Tone.Transport.pause();
+        document.getElementById('musicIcon').textContent = '🔇';
+        isMusicPlaying = false;
+      } else {
+        Tone.Transport.start();
+        document.getElementById('musicIcon').textContent = '🔊';
+        isMusicPlaying = true;
+      }
+    }
+
+    document.addEventListener('click', function firstClick() {
+      document.getElementById('musicControl').classList.add('show');
+      document.removeEventListener('click', firstClick);
+    }, { once: true });
+
+    // Navigation
+    function showModule(index) {
+      document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach((n, i) => {
+        n.classList.toggle('active', i === index);
+      });
+      document.getElementById('module' + index).classList.add('active');
+      currentModule = index;
+      window.scrollTo(0, 0);
+      
+      // Initialize 3D viewers when needed
+      setTimeout(() => {
+        if (index === 1) {
+          if (!co2Scene) {
+            console.log('Initializing CO2 viewer...');
+            initCO2();
+          }
+        }
+        if (index === 2 && !ionicScene) initIonic();
+        if (index === 3 && !covalentScene) initCovalent();
+        if (index === 4 && !metallicScene) initMetallic();
+        if (index === 5 && !compoundScene) initCompound();
+        if (index === 6) initQuiz();
+      }, 200);
+    }
+
+    // Profile
+    function showProfile() {
+      document.getElementById('profilePage').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function hideProfile() {
+      document.getElementById('profilePage').classList.remove('show');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Popup
+    function showPopup(title, text) {
+      document.getElementById('popupTitle').textContent = title;
+      document.getElementById('popupText').innerHTML = text;
+      document.getElementById('popup').classList.add('show');
+    }
+
+    function closePopup() {
+      document.getElementById('popup').classList.remove('show');
+    }
+
+    function showCO2Info() {
+      const info = document.getElementById('co2Info');
+      info.style.display = info.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function reloadCO2() {
+      console.log('Reloading CO2 viewer...');
+      const container = document.getElementById('co2Viewer');
+      
+      if (co2Scene) {
+        // Clean up existing scene
+        if (co2Scene.renderer && co2Scene.renderer.domElement) {
+          container.removeChild(co2Scene.renderer.domElement);
+        }
+        co2Scene = null;
+      }
+      
+      container.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--accent-blue);"><p>⏳ Memuat ulang visualisasi...</p></div>';
+      
+      setTimeout(() => {
+        initCO2();
+      }, 500);
+    }
+
+    // CO2 3D Viewer with Mouse Interaction
+    function initCO2() {
+      const container = document.getElementById('co2Viewer');
+      if (!container) {
+        console.error('CO2 viewer container not found');
+        return;
+      }
+      if (co2Scene) {
+        console.log('CO2 scene already initialized');
+        return;
+      }
+      
+      // Clear loading message
+      container.innerHTML = '';
+      
+      // Check if THREE.js is loaded
+      if (typeof THREE === 'undefined') {
+        console.warn('THREE.js not available, using 2D Canvas fallback');
+        initCO2Canvas(container);
+        return;
+      }
+      
+      try {
+        console.log('Starting THREE.js CO2 initialization...');
+        
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf0f4f8);
+        
+        const width = container.clientWidth || 600;
+        const height = container.clientHeight || 400;
+        
+        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ 
+          antialias: true, 
+          alpha: true,
+          powerPreference: "high-performance"
+        });
+        
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+        
+        camera.position.set(0, 2, 8);
+        camera.lookAt(0, 0, 0);
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+        
+        const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.6);
+        dirLight1.position.set(5, 8, 5);
+        scene.add(dirLight1);
+        
+        const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.3);
+        dirLight2.position.set(-5, -3, -5);
+        scene.add(dirLight2);
+        
+        // Molecule group
+        const mol = new THREE.Group();
+        
+        // C atom (center) - Dark gray/black
+        const cGeo = new THREE.SphereGeometry(0.5, 32, 32);
+        const cMat = new THREE.MeshStandardMaterial({ 
+          color: 0x2d2d2d, 
+          metalness: 0.3, 
+          roughness: 0.4,
+          emissive: 0x0a0a0a,
+          emissiveIntensity: 0.3
+        });
+        const cMesh = new THREE.Mesh(cGeo, cMat);
+        cMesh.position.set(0, 0, 0);
+        mol.add(cMesh);
+        
+        // O atoms - Red
+        const oGeo = new THREE.SphereGeometry(0.45, 32, 32);
+        const oMat = new THREE.MeshStandardMaterial({ 
+          color: 0xff4757, 
+          metalness: 0.2, 
+          roughness: 0.3,
+          emissive: 0xff2233,
+          emissiveIntensity: 0.2
+        });
+        
+        const o1 = new THREE.Mesh(oGeo, oMat);
+        o1.position.set(-2.3, 0, 0);
+        mol.add(o1);
+        
+        const o2 = new THREE.Mesh(oGeo, oMat);
+        o2.position.set(2.3, 0, 0);
+        mol.add(o2);
+        
+        // Double bonds function
+        function createBond(startPos, endPos, offsetY) {
+          const start = new THREE.Vector3(startPos.x, startPos.y + offsetY, startPos.z);
+          const end = new THREE.Vector3(endPos.x, endPos.y + offsetY, endPos.z);
+          
+          const dir = new THREE.Vector3().subVectors(end, start);
+          const len = dir.length();
+          
+          const bondGeo = new THREE.CylinderGeometry(0.1, 0.1, len, 16);
+          const bondMat = new THREE.MeshStandardMaterial({ 
+            color: 0x4a4a4a, 
+            metalness: 0.4, 
+            roughness: 0.3 
+          });
+          const bond = new THREE.Mesh(bondGeo, bondMat);
+          
+          const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+          bond.position.copy(mid);
+          
+          const direction = dir.normalize();
+          bond.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+          
+          return bond;
+        }
+        
+        // C=O bonds (left side - double bond)
+        const bond1L = createBond(cMesh.position, o1.position, 0.15);
+        const bond2L = createBond(cMesh.position, o1.position, -0.15);
+        mol.add(bond1L, bond2L);
+        
+        // C=O bonds (right side - double bond)
+        const bond1R = createBond(cMesh.position, o2.position, 0.15);
+        const bond2R = createBond(cMesh.position, o2.position, -0.15);
+        mol.add(bond1R, bond2R);
+        
+        scene.add(mol);
+        
+        // Mouse/Touch interaction variables
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let autoRotate = true;
+        
+        // Mouse events
+        renderer.domElement.addEventListener('mousedown', (e) => {
+          isDragging = true;
+          previousMousePosition = { x: e.clientX, y: e.clientY };
+          autoRotate = false;
+          renderer.domElement.style.cursor = 'grabbing';
+        });
+        
+        renderer.domElement.addEventListener('mousemove', (e) => {
+          if (!isDragging) return;
+          
+          const deltaX = e.clientX - previousMousePosition.x;
+          const deltaY = e.clientY - previousMousePosition.y;
+          
+          mol.rotation.y += deltaX * 0.01;
+          mol.rotation.x += deltaY * 0.01;
+          
+          previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+        
+        renderer.domElement.addEventListener('mouseup', () => {
+          isDragging = false;
+          renderer.domElement.style.cursor = 'grab';
+        });
+        
+        renderer.domElement.addEventListener('mouseleave', () => {
+          isDragging = false;
+          renderer.domElement.style.cursor = 'grab';
+        });
+        
+        // Touch events for mobile
+        renderer.domElement.addEventListener('touchstart', (e) => {
+          isDragging = true;
+          const touch = e.touches[0];
+          previousMousePosition = { x: touch.clientX, y: touch.clientY };
+          autoRotate = false;
+        });
+        
+        renderer.domElement.addEventListener('touchmove', (e) => {
+          if (!isDragging) return;
+          e.preventDefault();
+          
+          const touch = e.touches[0];
+          const deltaX = touch.clientX - previousMousePosition.x;
+          const deltaY = touch.clientY - previousMousePosition.y;
+          
+          mol.rotation.y += deltaX * 0.01;
+          mol.rotation.x += deltaY * 0.01;
+          
+          previousMousePosition = { x: touch.clientX, y: touch.clientY };
+        });
+        
+        renderer.domElement.addEventListener('touchend', () => {
+          isDragging = false;
+        });
+        
+        renderer.domElement.style.cursor = 'grab';
+        
+        // Pause button
+        const pauseBtn = document.getElementById('btnPauseCO2');
+        if (pauseBtn) {
+          pauseBtn.onclick = () => {
+            autoRotate = !autoRotate;
+            pauseBtn.innerHTML = autoRotate ? '⏸ Pause Rotasi' : '▶ Resume Rotasi';
+          };
+        }
+        
+        // Animation loop
+        let animationId;
+        function animate() {
+          animationId = requestAnimationFrame(animate);
+          
+          if (autoRotate && !isDragging) {
+            mol.rotation.y += 0.005;
+          }
+          
+          renderer.render(scene, camera);
+        }
+        animate();
+        
+        // Handle window resize
+        function onResize() {
+          const width = container.clientWidth;
+          const height = container.clientHeight;
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+          renderer.setSize(width, height);
+        }
+        
+        window.addEventListener('resize', onResize);
+        
+        co2Scene = { 
+          scene, 
+          camera, 
+          renderer, 
+          mol, 
+          autoRotate, 
+          onResize,
+          animationId,
+          cleanup: () => {
+            cancelAnimationFrame(animationId);
+            window.removeEventListener('resize', onResize);
+            renderer.dispose();
+          }
+        };
+        
+        console.log('✅ CO2 THREE.js viewer initialized successfully');
+        
+        // Hide reload button since it worked
+        const reloadBtn = document.getElementById('btnReloadCO2');
+        if (reloadBtn) reloadBtn.style.display = 'none';
+        
+      } catch (error) {
+        console.error('❌ Error initializing CO2 THREE.js viewer:', error);
+        console.log('Falling back to 2D Canvas...');
+        initCO2Canvas(container);
+      }
+    }
+
+    // 2D Canvas Fallback for CO2
+    function initCO2Canvas(container) {
+      container.innerHTML = '';
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = container.clientWidth || 600;
+      canvas.height = container.clientHeight || 400;
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.cursor = 'grab';
+      container.appendChild(canvas);
+      
+      const ctx = canvas.getContext('2d');
+      let rotation = 0;
+      let isDragging = false;
+      let lastX = 0;
+      let autoRotate = true;
+      
+      // Mouse interaction
+      canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        lastX = e.clientX;
+        autoRotate = false;
+        canvas.style.cursor = 'grabbing';
+      });
+      
+      canvas.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - lastX;
+        rotation += deltaX * 0.01;
+        lastX = e.clientX;
+      });
+      
+      canvas.addEventListener('mouseup', () => {
+        isDragging = false;
+        canvas.style.cursor = 'grab';
+      });
+      
+      canvas.addEventListener('mouseleave', () => {
+        isDragging = false;
+        canvas.style.cursor = 'grab';
+      });
+      
+      // Pause button
+      const pauseBtn = document.getElementById('btnPauseCO2');
+      if (pauseBtn) {
+        pauseBtn.onclick = () => {
+          autoRotate = !autoRotate;
+          pauseBtn.innerHTML = autoRotate ? '⏸ Pause Rotasi' : '▶ Resume Rotasi';
+        };
+      }
+      
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const scale = Math.min(canvas.width, canvas.height) / 6;
+        
+        // Calculate 3D positions with rotation
+        const cosR = Math.cos(rotation);
+        const sinR = Math.sin(rotation);
+        
+        // Positions
+        const o1x = cx + (-2.3 * cosR) * scale;
+        const o1z = (-2.3 * sinR) * scale;
+        
+        const cx3d = cx;
+        const cz3d = 0;
+        
+        const o2x = cx + (2.3 * cosR) * scale;
+        const o2z = (2.3 * sinR) * scale;
+        
+        // Draw order (back to front based on z)
+        const objects = [
+          { type: 'o', x: o1x, z: o1z, cy: cy },
+          { type: 'c', x: cx3d, z: cz3d, cy: cy },
+          { type: 'o', x: o2x, z: o2z, cy: cy }
+        ];
+        
+        objects.sort((a, b) => a.z - b.z);
+        
+        // Draw bonds first
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'round';
+        
+        // Left double bond
+        ctx.beginPath();
+        ctx.moveTo(o1x, cy - 6);
+        ctx.lineTo(cx, cy - 6);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(o1x, cy + 6);
+        ctx.lineTo(cx, cy + 6);
+        ctx.stroke();
+        
+        // Right double bond
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 6);
+        ctx.lineTo(o2x, cy - 6);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + 6);
+        ctx.lineTo(o2x, cy + 6);
+        ctx.stroke();
+        
+        // Draw atoms
+        objects.forEach(obj => {
+          if (obj.type === 'c') {
+            // Carbon
+            ctx.fillStyle = '#2d2d2d';
+            ctx.beginPath();
+            ctx.arc(obj.x, obj.cy, 40, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('C', obj.x, obj.cy);
+          } else {
+            // Oxygen
+            const size = 45 - Math.abs(obj.z) * 0.1;
+            ctx.fillStyle = '#ff4757';
+            ctx.beginPath();
+            ctx.arc(obj.x, obj.cy, size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('O', obj.x, obj.cy);
+          }
+        });
+        
+        // Label
+        ctx.fillStyle = '#4a4a4a';
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('CO₂ - Drag untuk merotasi', cx, 30);
+        ctx.fillText('(Visualisasi 2D - THREE.js tidak tersedia)', cx, canvas.height - 20);
+        
+        if (autoRotate && !isDragging) {
+          rotation += 0.01;
+        }
+        
+        requestAnimationFrame(draw);
+      }
+      
+      draw();
+      
+      console.log('✅ CO2 2D Canvas fallback initialized');
+      
+      co2Scene = { canvas, is2D: true };
+    }
+
+    // Ionic 3D Viewer
+    function initIonic() {
+      const container = document.getElementById('ionicViewer');
+      if (!container || ionicScene) return;
+      
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+      
+      camera.position.z = 8;
+      
+      scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+      dirLight.position.set(5, 8, 5);
+      scene.add(dirLight);
+      
+      const mol = new THREE.Group();
+      scene.add(mol);
+      
+      function animate() {
+        requestAnimationFrame(animate);
+        mol.rotation.y += 0.006;
+        renderer.render(scene, camera);
+      }
+      animate();
+      
+      ionicScene = { scene, camera, renderer, mol };
+    }
+
+    function buildIonic() {
+      if (!ionicScene) return;
+      
+      const metal = document.getElementById('metalSelect').value;
+      const nonmetal = document.getElementById('nonmetalSelect').value;
+      
+      // Clear previous
+      while (ionicScene.mol.children.length) ionicScene.mol.remove(ionicScene.mol.children[0]);
+      
+      const metalColors = { Na: 0xffb300, K: 0xff7043, Mg: 0x4db6ac, Ca: 0x81c784 };
+      const nonmetalColors = { Cl: 0x4fc3f7, F: 0xab47bc, O: 0xef5350, S: 0xffd54f };
+      const metalValence = { Na: 1, K: 1, Mg: 2, Ca: 2 };
+      const nonmetalValence = { Cl: 1, F: 1, O: 2, S: 2 };
+      
+      const mVal = metalValence[metal];
+      const nmVal = nonmetalValence[nonmetal];
+      
+      // Determine compound formula
+      let formula = '';
+      if (mVal === 1 && nmVal === 1) {
+        formula = `${metal}${nonmetal}`;
+        // 1:1 compound
+        const m = new THREE.Mesh(
+          new THREE.SphereGeometry(0.6, 32, 32),
+          new THREE.MeshStandardMaterial({ color: metalColors[metal], metalness: 0.3, roughness: 0.4 })
+        );
+        m.position.set(-1.5, 0, 0);
+        
+        const nm = new THREE.Mesh(
+          new THREE.SphereGeometry(0.6, 32, 32),
+          new THREE.MeshStandardMaterial({ color: nonmetalColors[nonmetal], metalness: 0.3, roughness: 0.4 })
+        );
+        nm.position.set(1.5, 0, 0);
+        
+        const bondGeo = new THREE.CylinderGeometry(0.12, 0.12, 3, 16);
+        const bondMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.2 });
+        const bond = new THREE.Mesh(bondGeo, bondMat);
+        bond.rotation.z = Math.PI / 2;
+        
+        ionicScene.mol.add(m, nm, bond);
+      } else if (mVal === 2 && nmVal === 1) {
+        formula = `${metal}${nonmetal}₂`;
+        // MX2 compound
+        const m = new THREE.Mesh(
+          new THREE.SphereGeometry(0.6, 32, 32),
+          new THREE.MeshStandardMaterial({ color: metalColors[metal], metalness: 0.3, roughness: 0.4 })
+        );
+        m.position.set(-1, 0, 0);
+        
+        const nm1 = new THREE.Mesh(
+          new THREE.SphereGeometry(0.55, 32, 32),
+          new THREE.MeshStandardMaterial({ color: nonmetalColors[nonmetal], metalness: 0.3, roughness: 0.4 })
+        );
+        nm1.position.set(1.8, 0.8, 0);
+        
+        const nm2 = new THREE.Mesh(
+          new THREE.SphereGeometry(0.55, 32, 32),
+          new THREE.MeshStandardMaterial({ color: nonmetalColors[nonmetal], metalness: 0.3, roughness: 0.4 })
+        );
+        nm2.position.set(1.8, -0.8, 0);
+        
+        // Bonds
+        const bond1 = createBondCylinder(m.position, nm1.position);
+        const bond2 = createBondCylinder(m.position, nm2.position);
+        
+        ionicScene.mol.add(m, nm1, nm2, bond1, bond2);
+      } else if (mVal === 1 && nmVal === 2) {
+        formula = `${metal}₂${nonmetal}`;
+        // M2X compound
+        const m1 = new THREE.Mesh(
+          new THREE.SphereGeometry(0.55, 32, 32),
+          new THREE.MeshStandardMaterial({ color: metalColors[metal], metalness: 0.3, roughness: 0.4 })
+        );
+        m1.position.set(-1.8, 0.8, 0);
+        
+        const m2 = new THREE.Mesh(
+          new THREE.SphereGeometry(0.55, 32, 32),
+          new THREE.MeshStandardMaterial({ color: metalColors[metal], metalness: 0.3, roughness: 0.4 })
+        );
+        m2.position.set(-1.8, -0.8, 0);
+        
+        const nm = new THREE.Mesh(
+          new THREE.SphereGeometry(0.6, 32, 32),
+          new THREE.MeshStandardMaterial({ color: nonmetalColors[nonmetal], metalness: 0.3, roughness: 0.4 })
+        );
+        nm.position.set(1, 0, 0);
+        
+        const bond1 = createBondCylinder(m1.position, nm.position);
+        const bond2 = createBondCylinder(m2.position, nm.position);
+        
+        ionicScene.mol.add(m1, m2, nm, bond1, bond2);
+      } else if (mVal === 2 && nmVal === 2) {
+        formula = `${metal}${nonmetal}`;
+        // 1:1 with double charge
+        const m = new THREE.Mesh(
+          new THREE.SphereGeometry(0.6, 32, 32),
+          new THREE.MeshStandardMaterial({ color: metalColors[metal], metalness: 0.3, roughness: 0.4 })
+        );
+        m.position.set(-1.5, 0, 0);
+        
+        const nm = new THREE.Mesh(
+          new THREE.SphereGeometry(0.6, 32, 32),
+          new THREE.MeshStandardMaterial({ color: nonmetalColors[nonmetal], metalness: 0.3, roughness: 0.4 })
+        );
+        nm.position.set(1.5, 0, 0);
+        
+        // Double bond representation
+        const bond1 = createBondCylinder(
+          new THREE.Vector3(-1.5, 0.15, 0),
+          new THREE.Vector3(1.5, 0.15, 0)
+        );
+        const bond2 = createBondCylinder(
+          new THREE.Vector3(-1.5, -0.15, 0),
+          new THREE.Vector3(1.5, -0.15, 0)
+        );
+        
+        ionicScene.mol.add(m, nm, bond1, bond2);
+      }
+      
+      function createBondCylinder(start, end) {
+        const dir = new THREE.Vector3().subVectors(end, start);
+        const len = dir.length();
+        const bondGeo = new THREE.CylinderGeometry(0.11, 0.11, len, 16);
+        const bondMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.2 });
+        const bond = new THREE.Mesh(bondGeo, bondMat);
+        bond.position.copy(start).add(end).multiplyScalar(0.5);
+        bond.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+        return bond;
+      }
+      
+      // Compound data
+      const compoundData = {
+        'NaCl': { 
+          name: 'Natrium Klorida', 
+          reaction: 'Na → Na⁺ + e⁻; Cl + e⁻ → Cl⁻',
+          latticeEnergy: '787 kJ/mol',
+          meltingPoint: '801°C',
+          properties: 'Garam dapur, larut dalam air, kristal kubik',
+          uses: 'Bumbu masakan, pengawet makanan, produksi NaOH dan Cl₂'
+        },
+        'KCl': {
+          name: 'Kalium Klorida',
+          reaction: 'K → K⁺ + e⁻; Cl + e⁻ → Cl⁻',
+          latticeEnergy: '717 kJ/mol',
+          meltingPoint: '770°C',
+          properties: 'Mirip NaCl, larut dalam air',
+          uses: 'Pupuk, pengganti garam untuk diet rendah natrium'
+        },
+        'NaF': {
+          name: 'Natrium Fluorida',
+          reaction: 'Na → Na⁺ + e⁻; F + e⁻ → F⁻',
+          latticeEnergy: '923 kJ/mol',
+          meltingPoint: '993°C',
+          properties: 'Energi kisi tinggi karena F⁻ kecil',
+          uses: 'Pasta gigi (mencegah karies), fluoridasi air'
+        },
+        'KF': {
+          name: 'Kalium Fluorida',
+          reaction: 'K → K⁺ + e⁻; F + e⁻ → F⁻',
+          latticeEnergy: '821 kJ/mol',
+          meltingPoint: '858°C',
+          properties: 'Sangat higroskopis, larut dalam air',
+          uses: 'Katalis dalam sintesis organik, etsa kaca'
+        },
+        'MgO': {
+          name: 'Magnesium Oksida',
+          reaction: 'Mg → Mg²⁺ + 2e⁻; O + 2e⁻ → O²⁻',
+          latticeEnergy: '3850 kJ/mol (sangat tinggi!)',
+          meltingPoint: '2852°C',
+          properties: 'Energi kisi sangat tinggi karena muatan ganda',
+          uses: 'Bahan refraktori, antasida (milk of magnesia), pupuk'
+        },
+        'CaO': {
+          name: 'Kalsium Oksida',
+          reaction: 'Ca → Ca²⁺ + 2e⁻; O + 2e⁻ → O²⁻',
+          latticeEnergy: '3401 kJ/mol',
+          meltingPoint: '2613°C',
+          properties: 'Kapur tohor, bereaksi hebat dengan air (eksoterm)',
+          uses: 'Bahan bangunan (semen), pengolahan air, produksi logam'
+        },
+        'MgCl₂': {
+          name: 'Magnesium Klorida',
+          reaction: 'Mg → Mg²⁺ + 2e⁻; 2Cl + 2e⁻ → 2Cl⁻',
+          latticeEnergy: '2326 kJ/mol',
+          meltingPoint: '714°C',
+          properties: 'Higroskopis, larut dalam air',
+          uses: 'Suplemen makanan, pencairan es jalan, produksi Mg'
+        },
+        'CaCl₂': {
+          name: 'Kalsium Klorida',
+          reaction: 'Ca → Ca²⁺ + 2e⁻; 2Cl + 2e⁻ → 2Cl⁻',
+          latticeEnergy: '2255 kJ/mol',
+          meltingPoint: '772°C',
+          properties: 'Sangat higroskopis, eksoterm saat larut',
+          uses: 'Desikan, pencairan es jalan, pengaturan kelembaban'
+        },
+        'MgF₂': {
+          name: 'Magnesium Fluorida',
+          reaction: 'Mg → Mg²⁺ + 2e⁻; 2F + 2e⁻ → 2F⁻',
+          latticeEnergy: '2922 kJ/mol',
+          meltingPoint: '1263°C',
+          properties: 'Transparansi tinggi, tahan panas',
+          uses: 'Pelapis lensa optik, keramik'
+        },
+        'CaF₂': {
+          name: 'Kalsium Fluorida',
+          reaction: 'Ca → Ca²⁺ + 2e⁻; 2F + 2e⁻ → 2F⁻',
+          latticeEnergy: '2602 kJ/mol',
+          meltingPoint: '1418°C',
+          properties: 'Mineral fluorit, struktur kristal khusus',
+          uses: 'Produksi HF dan F₂, optik, metalurgi'
+        },
+        'Na₂O': {
+          name: 'Natrium Oksida',
+          reaction: '2Na → 2Na⁺ + 2e⁻; O + 2e⁻ → O²⁻',
+          latticeEnergy: '2481 kJ/mol',
+          meltingPoint: '1132°C',
+          properties: 'Basa kuat, bereaksi dengan air membentuk NaOH',
+          uses: 'Produksi kaca, keramik, katalis'
+        },
+        'K₂O': {
+          name: 'Kalium Oksida',
+          reaction: '2K → 2K⁺ + 2e⁻; O + 2e⁻ → O²⁻',
+          latticeEnergy: '2238 kJ/mol',
+          meltingPoint: '350°C (terdekomposisi)',
+          properties: 'Sangat reaktif dengan air',
+          uses: 'Pupuk (sumber kalium), produksi gelas'
+        },
+        'Na₂S': {
+          name: 'Natrium Sulfida',
+          reaction: '2Na → 2Na⁺ + 2e⁻; S + 2e⁻ → S²⁻',
+          latticeEnergy: '2203 kJ/mol',
+          meltingPoint: '1180°C',
+          properties: 'Larut dalam air, bau busuk (H₂S)',
+          uses: 'Industri tekstil (pewarna), pengolahan limbah'
+        },
+        'K₂S': {
+          name: 'Kalium Sulfida',
+          reaction: '2K → 2K⁺ + 2e⁻; S + 2e⁻ → S²⁻',
+          latticeEnergy: '2052 kJ/mol',
+          meltingPoint: '948°C',
+          properties: 'Higroskopis, larut dalam air',
+          uses: 'Produksi cat, pupuk, fungisida'
+        },
+        'MgS': {
+          name: 'Magnesium Sulfida',
+          reaction: 'Mg → Mg²⁺ + 2e⁻; S + 2e⁻ → S²⁻',
+          latticeEnergy: '3406 kJ/mol',
+          meltingPoint: '2000°C (perkiraan)',
+          properties: 'Struktur mirip MgO',
+          uses: 'Semikonduktor, fosfor'
+        },
+        'CaS': {
+          name: 'Kalsium Sulfida',
+          reaction: 'Ca → Ca²⁺ + 2e⁻; S + 2e⁻ → S²⁻',
+          latticeEnergy: '3119 kJ/mol',
+          meltingPoint: '2400°C (perkiraan)',
+          properties: 'Berwarna putih hingga kekuningan',
+          uses: 'Fosfor, cat, produksi H₂S'
+        }
+      };
+      
+      const data = compoundData[formula];
+      
+      // Update info
+      if (data) {
+        document.getElementById('ionicInfo').innerHTML = 
+          `<strong>Rumus: ${formula}</strong><br>
+          <strong>Nama:</strong> ${data.name}<br><br>
+          <strong>Reaksi Pembentukan:</strong><br>
+          ${data.reaction}<br><br>
+          <strong>Energi Kisi:</strong> ${data.latticeEnergy}<br>
+          <strong>Titik Leleh:</strong> ${data.meltingPoint}<br><br>
+          <strong>Sifat:</strong> ${data.properties}<br><br>
+          <strong>Aplikasi:</strong> ${data.uses}`;
+      } else {
+        document.getElementById('ionicInfo').innerHTML = 
+          `<strong>Rumus: ${formula}</strong><br>
+          <em>Data detail belum tersedia untuk senyawa ini.</em>`;
+      }
+    }
+
+    // Covalent 3D Viewer  
+    function initCovalent() {
+      const container = document.getElementById('covalentViewer');
+      if (!container || covalentScene) return;
+      
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+      
+      camera.position.z = 6;
+      
+      scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+      dirLight.position.set(5, 8, 5);
+      scene.add(dirLight);
+      
+      const mol = new THREE.Group();
+      scene.add(mol);
+      
+      function animate() {
+        requestAnimationFrame(animate);
+        mol.rotation.y += 0.008;
+        renderer.render(scene, camera);
+      }
+      animate();
+      
+      covalentScene = { scene, camera, renderer, mol };
+      buildCovalent();
+    }
+
+    function buildCovalent() {
+      if (!covalentScene) return;
+      
+      const type = document.getElementById('moleculeSelect').value;
+      while (covalentScene.mol.children.length) covalentScene.mol.remove(covalentScene.mol.children[0]);
+      
+      const atomColors = { H: 0xffffff, O: 0xff6b6b, N: 0xbca8ff, C: 0x333333 };
+      
+      const moleculeData = {
+        H2: {
+          atoms: [{type:'H',pos:[-1,0,0]},{type:'H',pos:[1,0,0]}],
+          bonds: [[0,1]],
+          info: '<strong>H₂</strong><br>Kovalen tunggal, PEI=1, Linear 180°, gas bahan bakar'
+        },
+        O2: {
+          atoms: [{type:'O',pos:[-1,0,0]},{type:'O',pos:[1,0,0]}],
+          bonds: [[0,1,true]],
+          info: '<strong>O₂</strong><br>Kovalen rangkap 2, PEI=2, Linear 180°, gas pernapasan'
+        },
+        N2: {
+          atoms: [{type:'N',pos:[-1,0,0]},{type:'N',pos:[1,0,0]}],
+          bonds: [[0,1,true,true]],
+          info: '<strong>N₂</strong><br>Kovalen rangkap 3, PEI=3, Linear 180°, komponen udara'
+        },
+        H2O: {
+          atoms: [{type:'O',pos:[0,0,0]},{type:'H',pos:[-0.9,0.6,0]},{type:'H',pos:[0.9,0.6,0]}],
+          bonds: [[0,1],[0,2]],
+          info: '<strong>H₂O</strong><br>Kovalen, PEI=2, PEB=2, Bengkok 104.5°, pelarut universal'
+        },
+        NH3: {
+          atoms: [{type:'N',pos:[0,0.3,0]},{type:'H',pos:[0.8,-0.3,0]},{type:'H',pos:[-0.4,-0.3,0.7]},{type:'H',pos:[-0.4,-0.3,-0.7]}],
+          bonds: [[0,1],[0,2],[0,3]],
+          info: '<strong>NH₃</strong><br>Kovalen, PEI=3, PEB=1, Piramida 107°, pupuk amonia'
+        },
+        CO: {
+          atoms: [{type:'C',pos:[-1,0,0]},{type:'O',pos:[1,0,0]}],
+          bonds: [[0,1,true]],
+          info: '<strong>CO</strong><br>Kovalen koordinasi, PEI=2-3, Linear 180°, gas beracun'
+        }
+      };
+      
+      const data = moleculeData[type];
+      const meshes = [];
+      
+      data.atoms.forEach(atom => {
+        const geo = new THREE.SphereGeometry(atom.type === 'H' ? 0.3 : 0.4, 32, 32);
+        const mat = new THREE.MeshStandardMaterial({ color: atomColors[atom.type] });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(...atom.pos);
+        covalentScene.mol.add(mesh);
+        meshes.push(mesh);
+      });
+      
+      data.bonds.forEach(bond => {
+        const p1 = meshes[bond[0]].position;
+        const p2 = meshes[bond[1]].position;
+        
+        if (bond[2]) { // double
+          addBond(p1, p2, new THREE.Vector3(0, 0.1, 0));
+          addBond(p1, p2, new THREE.Vector3(0, -0.1, 0));
+          if (bond[3]) { // triple
+            addBond(p1, p2, new THREE.Vector3(0, 0, 0));
+          }
+        } else {
+          addBond(p1, p2);
+        }
+      });
+      
+      function addBond(p1, p2, offset = new THREE.Vector3()) {
+        const dir = new THREE.Vector3().subVectors(p2, p1);
+        const len = dir.length();
+        const bondGeo = new THREE.CylinderGeometry(0.06, 0.06, len, 16);
+        const bondMat = new THREE.MeshStandardMaterial({ color: 0x666666 });
+        const bond = new THREE.Mesh(bondGeo, bondMat);
+        bond.position.copy(p1).add(p2).multiplyScalar(0.5).add(offset);
+        bond.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+        covalentScene.mol.add(bond);
+      }
+      
+      document.getElementById('covalentInfo').innerHTML = data.info;
+    }
+
+    // Metallic & Intermolecular
+    function initMetallic() {
+      const container = document.getElementById('metallicViewer');
+      if (!container || metallicScene) return;
+      
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+      
+      camera.position.z = 10;
+      
+      scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+      dirLight.position.set(5, 8, 5);
+      scene.add(dirLight);
+      
+      const mol = new THREE.Group();
+      scene.add(mol);
+      
+      function animate() {
+        requestAnimationFrame(animate);
+        mol.rotation.y += 0.006;
+        renderer.render(scene, camera);
+      }
+      animate();
+      
+      metallicScene = { scene, camera, renderer, mol };
+    }
+
+    function showMetallic() {
+      if (!metallicScene) initMetallic();
+      while (metallicScene.mol.children.length) metallicScene.mol.remove(metallicScene.mol.children[0]);
+      
+      // Create metallic lattice
+      for (let i = -2; i <= 2; i++) {
+        for (let j = -1; j <= 1; j++) {
+          for (let k = -1; k <= 1; k++) {
+            const geo = new THREE.SphereGeometry(0.3, 16, 16);
+            const mat = new THREE.MeshStandardMaterial({ color: 0xffd166, metalness: 0.8 });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(i * 1.5, j * 1.5, k * 1.5);
+            metallicScene.mol.add(mesh);
+          }
+        }
+      }
+      
+      // Electron cloud
+      const electronGeo = new THREE.BufferGeometry();
+      const positions = new Float32Array(100 * 3);
+      for (let i = 0; i < 100; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 10;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 6;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 6;
+      }
+      electronGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const electronMat = new THREE.PointsMaterial({ color: 0x4a90e2, size: 0.2 });
+      const electrons = new THREE.Points(electronGeo, electronMat);
+      metallicScene.mol.add(electrons);
+    }
+
+    function showIntermolecular() {
+      if (!metallicScene) initMetallic();
+      while (metallicScene.mol.children.length) metallicScene.mol.remove(metallicScene.mol.children[0]);
+      
+      // Water molecules with hydrogen bonds
+      for (let i = 0; i < 5; i++) {
+        const mol = new THREE.Group();
+        
+        const O = new THREE.Mesh(
+          new THREE.SphereGeometry(0.4, 32, 32),
+          new THREE.MeshStandardMaterial({ color: 0xff6b6b })
+        );
+        const H1 = new THREE.Mesh(
+          new THREE.SphereGeometry(0.2, 32, 32),
+          new THREE.MeshStandardMaterial({ color: 0xffffff })
+        );
+        const H2 = new THREE.Mesh(
+          new THREE.SphereGeometry(0.2, 32, 32),
+          new THREE.MeshStandardMaterial({ color: 0xffffff })
+        );
+        
+        H1.position.set(-0.6, 0.4, 0);
+        H2.position.set(0.6, 0.4, 0);
+        
+        mol.add(O, H1, H2);
+        mol.position.set((i - 2) * 2, Math.sin(i) * 2, 0);
+        metallicScene.mol.add(mol);
+      }
+    }
+
+    // Compound Viewer
+    function initCompound() {
+      const container = document.getElementById('compoundViewer');
+      if (!container || compoundScene) return;
+      
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 100);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+      
+      camera.position.z = 6;
+      
+      scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+      dirLight.position.set(5, 8, 5);
+      scene.add(dirLight);
+      
+      const mol = new THREE.Group();
+      scene.add(mol);
+      
+      function animate() {
+        requestAnimationFrame(animate);
+        mol.rotation.y += 0.008;
+        renderer.render(scene, camera);
+      }
+      animate();
+      
+      compoundScene = { scene, camera, renderer, mol };
+    }
+
+    function showCompound(type) {
+      if (!compoundScene) initCompound();
+      while (compoundScene.mol.children.length) compoundScene.mol.remove(compoundScene.mol.children[0]);
+      
+      const info = document.getElementById('compoundInfo');
+      const name = document.getElementById('compoundName');
+      const details = document.getElementById('compoundDetails');
+      
+      info.style.display = 'block';
+      
+      if (type === 'NaCl') {
+        // Ionic lattice
+        for (let i = -1; i <= 1; i++) {
+          for (let j = -1; j <= 1; j++) {
+            const color = (i + j) % 2 === 0 ? 0x4a90e2 : 0x4ecdc4;
+            const geo = new THREE.SphereGeometry(0.3, 32, 32);
+            const mat = new THREE.MeshStandardMaterial({ color });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(i, j, 0);
+            compoundScene.mol.add(mesh);
+          }
+        }
+        name.textContent = 'NaCl (Garam Dapur)';
+        details.innerHTML = '<strong>Ikatan:</strong> Ionik<br><strong>Sifat:</strong> Titik leleh tinggi (801°C), menghantarkan listrik saat larut<br><strong>Aplikasi:</strong> Bumbu masakan, pengawet';
+      } else if (type === 'H2O') {
+        // Water molecule
+        const O = new THREE.Mesh(
+          new THREE.SphereGeometry(0.5, 32, 32),
+          new THREE.MeshStandardMaterial({ color: 0xff6b6b })
+        );
+        const H1 = new THREE.Mesh(
+          new THREE.SphereGeometry(0.3, 32, 32),
+          new THREE.MeshStandardMaterial({ color: 0xffffff })
+        );
+        const H2 = new THREE.Mesh(
+          new THREE.SphereGeometry(0.3, 32, 32),
+          new THREE.MeshStandardMaterial({ color: 0xffffff })
+        );
+        H1.position.set(-0.9, 0.6, 0);
+        H2.position.set(0.9, 0.6, 0);
+        compoundScene.mol.add(O, H1, H2);
+        
+        name.textContent = 'H₂O (Air)';
+        details.innerHTML = '<strong>Ikatan:</strong> Kovalen polar<br><strong>Sifat:</strong> Ikatan hidrogen, pelarut universal, titik didih 100°C<br><strong>Aplikasi:</strong> Kehidupan, industri';
+      } else if (type === 'Fe') {
+        // Metallic lattice
+        for (let i = -2; i <= 2; i++) {
+          for (let j = -1; j <= 1; j++) {
+            const geo = new THREE.SphereGeometry(0.25, 32, 32);
+            const mat = new THREE.MeshStandardMaterial({ color: 0xffd166, metalness: 0.8 });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.set(i * 0.8, j * 0.8, 0);
+            compoundScene.mol.add(mesh);
+          }
+        }
+        name.textContent = 'Fe (Besi)';
+        details.innerHTML = '<strong>Ikatan:</strong> Logam<br><strong>Sifat:</strong> Kuat, ulet, konduktor, titik leleh 1538°C<br><strong>Aplikasi:</strong> Konstruksi baja, mesin';
+      } else if (type === 'CH4') {
+        // Methane
+        const C = new THREE.Mesh(
+          new THREE.SphereGeometry(0.4, 32, 32),
+          new THREE.MeshStandardMaterial({ color: 0x333333 })
+        );
+        compoundScene.mol.add(C);
+        
+        const positions = [[1,0,0],[-0.33,0.94,0],[-0.33,-0.47,0.82],[-0.33,-0.47,-0.82]];
+        positions.forEach(pos => {
+          const H = new THREE.Mesh(
+            new THREE.SphereGeometry(0.25, 32, 32),
+            new THREE.MeshStandardMaterial({ color: 0xffffff })
+          );
+          H.position.set(...pos);
+          compoundScene.mol.add(H);
+        });
+        
+        name.textContent = 'CH₄ (Metana)';
+        details.innerHTML = '<strong>Ikatan:</strong> Kovalen nonpolar<br><strong>Sifat:</strong> Gaya London lemah, gas pada suhu ruang, titik didih -161°C<br><strong>Aplikasi:</strong> Bahan bakar gas alam';
+      }
+    }
+
+    // Quiz
+    const quizQuestions = [
+      {
+        question: "1. Senyawa ionik memiliki titik leleh yang tinggi karena...",
+        options: [
+          "Memiliki lautan elektron bebas",
+          "Gaya tarik elektrostatik antar ion sangat kuat",
+          "Elektron dibagi bersama antar atom",
+          "Memiliki gaya London yang kuat"
+        ],
+        correct: 1
+      },
+      {
+        question: "2. Manakah sifat berikut yang TIDAK dimiliki oleh senyawa kovalen?",
+        options: [
+          "Titik leleh rendah",
+          "Tidak menghantarkan listrik",
+          "Menghantarkan listrik dalam keadaan padat",
+          "Lunak dan mudah menguap"
+        ],
+        correct: 2
+      },
+      {
+        question: "3. Logam dapat menghantarkan listrik karena...",
+        options: [
+          "Memiliki elektron bebas yang dapat bergerak",
+          "Terdapat transfer elektron antar atom",
+          "Ikatan antar molekul sangat lemah",
+          "Memiliki struktur kristal ionik"
+        ],
+        correct: 0
+      },
+      {
+        question: "4. Garam dapur (NaCl) dapat menghantarkan listrik ketika...",
+        options: [
+          "Dalam bentuk padat",
+          "Dipanaskan tetapi masih padat",
+          "Dilarutkan dalam air atau dalam keadaan cair",
+          "Dalam kondisi apapun tidak dapat menghantarkan listrik"
+        ],
+        correct: 2
+      },
+      {
+        question: "5. Senyawa dengan gaya antarmolekul lemah umumnya memiliki sifat...",
+        options: [
+          "Titik didih tinggi dan keras",
+          "Titik leleh rendah dan mudah menguap",
+          "Konduktor listrik yang baik",
+          "Struktur kristal yang kuat"
+        ],
+        correct: 1
+      },
+      {
+        question: "6. Air (H₂O) memiliki titik didih yang relatif tinggi dibanding molekul sejenis karena...",
+        options: [
+          "Memiliki ikatan ionik",
+          "Membentuk ikatan hidrogen antar molekul",
+          "Memiliki lautan elektron",
+          "Bersifat nonpolar"
+        ],
+        correct: 1
+      },
+      {
+        question: "7. Tembaga (Cu) sering digunakan sebagai kabel listrik karena...",
+        options: [
+          "Memiliki ikatan ionik yang kuat",
+          "Tidak menghantarkan panas",
+          "Konduktor listrik yang sangat baik dan ulet",
+          "Mudah larut dalam air"
+        ],
+        correct: 2
+      },
+      {
+        question: "8. Manakah pasangan senyawa dan jenis ikatan yang BENAR?",
+        options: [
+          "CO₂ - Ionik",
+          "MgO - Ionik",
+          "Fe - Kovalen",
+          "CH₄ - Logam"
+        ],
+        correct: 1
+      },
+      {
+        question: "9. Senyawa ionik bersifat rapuh (getas) karena...",
+        options: [
+          "Ion-ion sejenis saling tolak menolak saat diberi tekanan",
+          "Elektron tidak dapat bergerak bebas",
+          "Gaya antarmolekul sangat lemah",
+          "Memiliki titik leleh yang rendah"
+        ],
+        correct: 0
+      },
+      {
+        question: "10. Metana (CH₄) berwujud gas pada suhu ruang karena...",
+        options: [
+          "Memiliki ikatan ionik yang lemah",
+          "Gaya antarmolekul (gaya London) sangat lemah",
+          "Dapat menghantarkan listrik",
+          "Memiliki lautan elektron"
+        ],
+        correct: 1
+      }
+    ];
+
+    let userAnswers = [];
+
+    function initQuiz() {
+      const container = document.getElementById('quizContainer');
+      let html = '';
+      
+      quizQuestions.forEach((q, qIdx) => {
+        html += `<div class="panel">
+          <h3>${q.question}</h3>
+          <div>`;
+        
+        q.options.forEach((opt, oIdx) => {
+          html += `
+            <div class="quiz-option" onclick="selectAnswer(${qIdx}, ${oIdx})">
+              <input type="radio" name="q${qIdx}" value="${oIdx}">
+              ${opt}
+            </div>`;
+        });
+        
+        html += `</div></div>`;
+      });
+      
+      container.innerHTML = html;
+      document.getElementById('submitQuiz').style.display = 'inline-block';
+      userAnswers = new Array(quizQuestions.length).fill(-1);
+    }
+
+    function selectAnswer(qIdx, oIdx) {
+      userAnswers[qIdx] = oIdx;
+      const options = document.querySelectorAll(`input[name="q${qIdx}"]`).forEach((input, i) => {
+        input.parentElement.classList.toggle('selected', i === oIdx);
+        if (i === oIdx) input.checked = true;
+      });
+    }
+
+    function submitQuiz() {
+      if (userAnswers.includes(-1)) {
+        alert('Mohon jawab semua pertanyaan terlebih dahulu!');
+        return;
+      }
+      
+      let score = 0;
+      
+      quizQuestions.forEach((q, qIdx) => {
+        const options = document.querySelectorAll(`input[name="q${qIdx}"]`);
+        options.forEach((input, oIdx) => {
+          const opt = input.parentElement;
+          if (oIdx === q.correct) {
+            opt.classList.add('correct');
+          } else if (oIdx === userAnswers[qIdx]) {
+            opt.classList.add('wrong');
+          }
+        });
+        
+        if (userAnswers[qIdx] === q.correct) score++;
+      });
+      
+      const percentage = (score / quizQuestions.length) * 100;
+      let message = '';
+      let emoji = '';
+      
+      if (percentage >= 90) {
+        message = 'Luar Biasa! Sempurna!';
+        emoji = '🏆';
+      } else if (percentage >= 75) {
+        message = 'Bagus Sekali!';
+        emoji = '⭐';
+      } else if (percentage >= 60) {
+        message = 'Cukup Baik!';
+        emoji = '👍';
+      } else {
+        message = 'Perlu Belajar Lagi!';
+        emoji = '📚';
+      }
+      
+      document.getElementById('quizResult').innerHTML = `
+        <div class="panel" style="text-align: center; background: linear-gradient(135deg, #f0f9ff, #fef3f8);">
+          <h2 style="color: var(--accent-blue); font-size: 2rem;">${emoji} ${message}</h2>
+          <div style="font-size: 3.5rem; font-weight: bold; color: var(--accent-pink); margin: 20px 0;">
+            ${score}/${quizQuestions.length}
+          </div>
+          <p style="font-size: 1.2rem; color: var(--muted);">
+            Skor Anda: <strong>${percentage.toFixed(0)}%</strong>
+          </p>
+          <button class="btn btn-primary" onclick="initQuiz(); document.getElementById('quizResult').innerHTML=''; window.scrollTo(0,0);" style="margin-top: 20px;">
+            🔄 Coba Lagi
+          </button>
+        </div>
+      `;
+      
+      document.getElementById('submitQuiz').style.display = 'none';
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      console.log('Page loaded, checking THREE.js...');
+      
+      // Check if THREE.js is available
+      if (typeof THREE === 'undefined') {
+        console.error('THREE.js not loaded!');
+        const container = document.getElementById('co2Viewer');
+        if (container) {
+          container.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: red; flex-direction: column; padding: 20px; text-align: center;"><p style="font-size: 1.2rem; margin-bottom: 10px;">❌ Error: THREE.js tidak dapat dimuat</p><p style="font-size: 0.9rem;">Silakan refresh halaman atau periksa koneksi internet Anda</p></div>';
+        }
+        return;
+      }
+      
+      console.log('THREE.js loaded successfully, version:', THREE.REVISION);
+      
+      // Initialize CO2 viewer with multiple attempts
+      let attempts = 0;
+      const maxAttempts = 5;
+      
+      function tryInitCO2() {
+        attempts++;
+        console.log(`Attempt ${attempts} to initialize CO2 viewer...`);
+        
+        const container = document.getElementById('co2Viewer');
+        if (!container) {
+          console.error('CO2 viewer container not found');
+          if (attempts < maxAttempts) {
+            setTimeout(tryInitCO2, 500);
+          }
+          return;
+        }
+        
+        if (container.clientWidth === 0 || container.clientHeight === 0) {
+          console.log('Container not ready yet, waiting...');
+          if (attempts < maxAttempts) {
+            setTimeout(tryInitCO2, 500);
+          }
+          return;
+        }
+        
+        console.log('Container ready, initializing CO2...');
+        initCO2();
+      }
+      
+      // Start trying to initialize
+      setTimeout(tryInitCO2, 300);
+    });
+
+    // Responsive resize
+    window.addEventListener('resize', () => {
+      if (co2Scene) {
+        const container = document.getElementById('co2Viewer');
+        if (container) {
+          co2Scene.camera.aspect = container.clientWidth / container.clientHeight;
+          co2Scene.camera.updateProjectionMatrix();
+          co2Scene.renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+      }
+      if (ionicScene) {
+        const container = document.getElementById('ionicViewer');
+        if (container) {
+          ionicScene.camera.aspect = container.clientWidth / container.clientHeight;
+          ionicScene.camera.updateProjectionMatrix();
+          ionicScene.renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+      }
+      if (covalentScene) {
+        const container = document.getElementById('covalentViewer');
+        if (container) {
+          covalentScene.camera.aspect = container.clientWidth / container.clientHeight;
+          covalentScene.camera.updateProjectionMatrix();
+          covalentScene.renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
